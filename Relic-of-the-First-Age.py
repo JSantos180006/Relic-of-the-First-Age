@@ -148,4 +148,110 @@ class Player:
         slot = item.slot
 
         if slot == "accessory":
-            if 
+            if self.equipment["accessory1"] is None:
+                slot = "accessory1"
+            elif self.equipment["accessory2"] is None:
+                slot = "accessory2"
+            else:
+                slot = "accessory1"
+
+        if self.equipment.get(slot):
+            self.remove_item_bonuses(self.equipment[slot])
+
+        self.equipment[slot] = item
+        self.apply_item_bonuses(item)
+
+        if item in self.inventory:
+            self.inventory.remove(item)
+
+""" Allocating Stat Points """
+def allocate_stats(player, title_surface, border_surface):
+    stats = ["HP", "ATK", "DEF", "INT", "FTH", "LCK", "ASPD"]
+    index = 0
+
+    stat_map = {
+        "HP": "max_hp",
+        "ATK": "atk",
+        "DEF": "defense",
+        "INT": "intel",
+        "FTH": "faith",
+        "LCK": "luck",
+        "ASPD": "aspd"
+    }
+
+    stat_gain = {
+        "HP": 10,
+        "ATK": 5,
+        "DEF": 5,
+        "INT": 2,
+        "FTH": 2,
+        "LCK": 1,
+        "ASPD": 0.25
+    }
+
+    while player.stat_points > 0:
+        screen.fill(black)
+        screen.blit(title_surface, (0,0))
+        screen.blit(border_surface, (0,0))
+
+        title = menu_font.render("Level Up! Distribute Stat Points", True, white)
+        screen.blit(title, (80, 330))
+
+        points_txt = text_font.render(
+            f"Available Points: {player.stat_points}", True, white
+        )
+        screen.blit(points_txt, (80, 390))
+
+        y = 450
+        for i, stat in enumerate(stats):
+            attr = stat_map[stat]
+            value = getattr(player, attr)
+
+            if stat == "ASPD":
+                display_value = f"{value: .2f}"
+            else:
+                display_value = str(value)
+
+            color = black if i == index else white
+            txt = text_font.render(f"{stat}: {display_value}", True, color)
+            rect = txt.get_rect(topleft=(80, y))
+
+            if i == index:
+                pygame.draw.rect(screen, highlight, rect.inflate(20, 10))
+
+            screen.blit(txt, rect)
+            y += 50
+
+        info = text_font.render(
+            "ENTER = Add Point | Arrow Keys = Move", True, white
+        )
+        screen.blit(info, (80, y + 40))
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    index = (index - 1) % len(stats)
+                elif event.key == pygame.K_DOWN:
+                    index = (index + 1) % len(stats)
+                elif event.key == pygame.K_RETURN:
+                    stat_choice = stats[index]
+                    attr = stat_map[stat_choice]
+                    gain = stat_gain[stat_choice]
+
+                    if stat_choice == "HP":
+                        player.max_hp += gain
+                        player.hp += gain
+                    else:
+                        setattr(player, attr, getattr(player, attr) + gain)
+
+                    player.stat_points -= 1
+
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        clock.tick(60)
+
+""" GUI """
