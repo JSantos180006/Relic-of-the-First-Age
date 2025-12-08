@@ -468,7 +468,7 @@ def open_inventory(player, title_surface, border_surface):
 
         pygame.draw.rect(screen, white, (inv_x, inv_y, inv_w, inv_h), 4)
 
-        inv_label = text_font.render(screen, white, (inv_x, inv_y, inv_w, inv_h), 4)
+        inv_label = text_font.render("Items:", True, white)
         screen.blit(inv_label, (inv_x + 20, inv_y + 10))
 
         y = inv_y + 60
@@ -867,6 +867,7 @@ def draw_wrapped_text(surface, text, font, color, x, y, max_width, line_spacing=
             rendered = font.render(line, True, color)
             surface.blit(rendered, (x, y + y_offset))
             y_offset += font.get_linesize() + line_spacing
+            line = word + " "
 
     if line:
         rendered = font.render(line, True, color)
@@ -944,8 +945,6 @@ def combat(player, monster, title_surface, border_surface):
                 draw_lootwrapped_text(screen, text, text_font, white, log_x, y, max_log_width, rarity)
             else:
                 draw_wrapped_text(screen, entry, text_font, white, log_x, y, max_log_width)
-
-            y += text_font.get_linesize() * 1.4
 
             y += text_font.get_linesize() * 1.4
 
@@ -1068,7 +1067,7 @@ def combat(player, monster, title_surface, border_surface):
                             f"LOOT DROPPED: {loot.name}",
                         )
 
-                        combat_log.append(("LOOT", loot.rarity))
+                        combat_log.append((f"LOOT DROPPED: {loot.name}", loot.rarity))
 
                     pygame.time.delay(600)
                     return "Victory"
@@ -1114,7 +1113,7 @@ def start_dungeon_run(player, title_surface, border_surface):
         if result in ["quit_run", "escaped"]:
             return
         
-        if result == "victory":
+        if result == "Victory":
             floor_num += 1
 
 """ Name Input """
